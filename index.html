@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Moneycontrol iWar Tracker</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  >
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="hero-stats" id="heroStats"></div>
+      <div class="hero-main">
+        <img class="brand-logo" src="./moneycontrol-logo-transparent-cropped.png" alt="Moneycontrol logo">
+        <div class="hero-copy">
+          <p class="eyebrow">Iran-Israel war dashboard</p>
+          <h1>Moneycontrol iWar Tracker</h1>
+          <p class="subtitle">
+            Dashboard tracks number of attacks based on ACLED data, shows weekly counts and map of attacks
+            and fatalities. It also shows strike modes by opponents.
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <section class="panel wide market-panel">
+      <div class="panel-head">
+        <div>
+          <p class="kicker">Financials</p>
+          <h2>War market monitor</h2>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="market-table">
+          <thead>
+            <tr>
+              <th>Indicators</th>
+              <th>Actual Price</th>
+              <th>Change from Yesterday</th>
+              <th>Change from before the start of the war (February 27)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="loss-row"><td>Shipping cost $</td><td>$250,000</td><td>-</td><td>75.00%</td></tr>
+            <tr class="loss-row"><td>Brent Crude</td><td>$112.5</td><td>3.54%</td><td>58.45%</td></tr>
+            <tr class="loss-row"><td>LPG price in Delhi (in Rs)</td><td>913</td><td>-</td><td>7.03%</td></tr>
+            <tr class="loss-row"><td>ATF price in Delhi (Rs)</td><td>96,638.14</td><td>-</td><td>5.74%</td></tr>
+            <tr class="loss-row"><td>BITCOIN</td><td>6,432,383.19</td><td>-2.57%</td><td>3.30%</td></tr>
+            <tr class="loss-row"><td>USDINR</td><td>93.71</td><td>1.16%</td><td>2.28%</td></tr>
+            <tr class="loss-row"><td>EURINR</td><td>108.2271</td><td>1.24%</td><td>0.49%</td></tr>
+            <tr class="loss-row"><td>JPYINR</td><td>0.5899</td><td>1.71%</td><td>0.49%</td></tr>
+            <tr><td>PETROL</td><td>103.49</td><td>0%</td><td>0.00%</td></tr>
+            <tr><td>DIESEL</td><td>90.01</td><td>0%</td><td>0.00%</td></tr>
+            <tr class="loss-row"><td>RBI's forex reserves* (in $ million)</td><td>716.81</td><td>-</td><td>-1.60%</td></tr>
+            <tr class="loss-row"><td>Nifty 50</td><td>23,114.50</td><td>0.49%</td><td>-8.46%</td></tr>
+            <tr class="loss-row"><td>GOLD</td><td>144,825.00</td><td>0.23%</td><td>-10.05%</td></tr>
+            <tr><td>Fuel reserves (in days)</td><td>50</td><td>-</td><td>-</td></tr>
+            <tr class="loss-row"><td>Airline disruption count (no of flights disrupted)</td><td>46000</td><td>-</td><td>-</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <main class="layout">
+      <section class="panel wide">
+        <div class="panel-head">
+          <div>
+            <p class="kicker">Chart 0</p>
+            <h2>Iranian attacks</h2>
+          </div>
+        </div>
+        <div class="chart irgc-wrap">
+          <div class="irgc-subtitle">Two-day exponential moving average for daily missile and drone launches by IRGC</div>
+          <div class="irgc-legend" id="irgcLegend"></div>
+          <div class="irgc-card">
+            <svg
+              id="irgcChart"
+              viewBox="0 0 1100 620"
+              width="1100"
+              height="620"
+              preserveAspectRatio="xMidYMid meet"
+              class="irgc-svg"
+              role="img"
+              aria-label="Line chart of missile and drone launch EMA"
+            ></svg>
+            <div class="irgc-tooltip" id="irgcTooltip"></div>
+          </div>
+          <div class="irgc-source">Source: MarioLeb79 | Allied Tracking</div>
+        </div>
+      </section>
+
+      <section class="panel wide">
+        <div class="panel-head">
+          <div>
+            <p class="kicker">Chart 1</p>
+            <h2>Iran-Israel head-to-head</h2>
+          </div>
+          <div class="legend">
+            <span><i class="iran"></i>Iran</span>
+            <span><i class="israel-us"></i>US-Israel allies</span>
+          </div>
+        </div>
+        <div id="attackTrend" class="chart"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="kicker">Chart 2</p>
+            <h2>Extent of war</h2>
+          </div>
+          <div class="control-row">
+            <label for="attackMapPeriod">View</label>
+            <select id="attackMapPeriod"></select>
+          </div>
+        </div>
+        <div id="dailyMapSummary" class="summary-strip"></div>
+        <div id="dailyMap" class="chart map"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="kicker">Chart 3</p>
+            <h2>Rising death toll</h2>
+          </div>
+          <div class="control-row">
+            <label for="fatalityMapPeriod">View</label>
+            <select id="fatalityMapPeriod"></select>
+          </div>
+        </div>
+        <div id="fatalityMapSummary" class="summary-strip"></div>
+        <div id="fatalityMap" class="chart map"></div>
+      </section>
+
+      <section class="panel wide">
+        <div class="panel-head">
+          <div>
+            <p class="kicker">Chart 4</p>
+            <h2>Aerial route</h2>
+          </div>
+          <div class="legend">
+            <span><i class="iran"></i>Iran</span>
+            <span><i class="israel-us"></i>US-Israel allies</span>
+          </div>
+        </div>
+        <div id="strikeModes" class="chart"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="data.js"></script>
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script src="app.js"></script>
+</body>
+</html>

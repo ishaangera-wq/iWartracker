@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Strikes by Iran</title>
+  <style>
+    :root {
+      --mc-blue: #0B5ED7;
+      --mc-red: #E03C31;
+      --text: #122033;
+      --muted: #5E6B7A;
+      --axis: #C9D2DC;
+      --bg: #FFFFFF;
+      --hover: #F4F7FB;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      color: var(--text);
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 24px 20px;
+    }
+
+    .kicker {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--mc-blue);
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.1;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .subhed {
+      margin-top: 10px;
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 880px;
+      line-height: 1.5;
+    }
+
+    .legend {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      margin-top: 18px;
+      flex-wrap: wrap;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid #E8EDF3;
+      cursor: pointer;
+      user-select: none;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+
+    .legend-item.off {
+      opacity: 0.45;
+    }
+
+    .swatch {
+      width: 18px;
+      height: 4px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .chart-card {
+      margin-top: 18px;
+      border: 1px solid #E7EDF5;
+      border-radius: 20px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 12px 30px rgba(14, 28, 45, 0.06);
+      position: relative;
+    }
+
+    .chart-brand {
+      position: absolute;
+      top: 18px;
+      right: 20px;
+      z-index: 2;
+      width: clamp(138px, 18vw, 200px);
+      pointer-events: none;
+      opacity: 0.98;
+    }
+
+    .chart-brand img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: #fff;
+    }
+
+    .axis text {
+      fill: var(--muted);
+      font-size: 12px;
+    }
+
+    .axis line, .axis path {
+      stroke: var(--axis);
+      stroke-width: 1;
+    }
+
+    .series-line {
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 5;
+      transition: opacity 0.2s ease;
+    }
+
+    .endpoint {
+      r: 6;
+      stroke: #fff;
+      stroke-width: 3;
+    }
+
+    .value-label {
+      font-size: 13px;
+      font-weight: 800;
+      dominant-baseline: middle;
+    }
+
+    .start-label {
+      font-size: 12px;
+      font-weight: 700;
+      dominant-baseline: middle;
+    }
+
+    .hover-line {
+      stroke: #A6B4C3;
+      stroke-width: 1;
+      stroke-dasharray: 4 4;
+      opacity: 0;
+    }
+
+    .hit-area {
+      fill: transparent;
+      cursor: crosshair;
+    }
+
+    .tooltip {
+      position: absolute;
+      min-width: 190px;
+      background: rgba(18, 32, 51, 0.96);
+      color: #fff;
+      border-radius: 14px;
+      padding: 12px 14px;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, calc(-100% - 16px));
+      transition: opacity 0.12s ease;
+      box-shadow: 0 14px 28px rgba(0,0,0,0.22);
+    }
+
+    .tooltip .date {
+      font-size: 12px;
+      color: #C7D2DF;
+      margin-bottom: 6px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .tooltip .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .tooltip .row span:last-child {
+      font-weight: 800;
+    }
+
+    .source {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 720px) {
+      .wrap { padding: 20px 14px 16px; }
+      h1 { font-size: 26px; }
+      .subhed { font-size: 14px; }
+      .value-label, .start-label { font-size: 11px; }
+      .chart-brand {
+        top: 12px;
+        right: 12px;
+        width: clamp(110px, 30vw, 150px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Missile and drone strikes by Iran</h1>
+    <div class="subhed">Two-day exponential moving average for daily missile and drone launches by IRGC</div>
+
+    <div class="legend" id="legend"></div>
+
+    <div class="chart-card">
+      <div class="chart-brand" aria-hidden="true">
+        <img src="./moneycontrol-logo-transparent-cropped.png" alt="Moneycontrol logo" />
+      </div>
+      <svg id="chart" viewBox="0 0 1100 620" role="img" aria-label="Interactive line chart of missile and drone launch EMA"></svg>
+      <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <div class="source">
+      <div>Source: MarioLeb79 | Allied Tracking </div>
+    </div>
+  </div>
+
+  <script>
+    const raw = [
+      { date: '2026-02-28', missiles: 350, drones: 800 },
+      { date: '2026-03-01', missiles: 175, drones: 400 },
+      { date: '2026-03-02', missiles: 120, drones: 500 },
+      { date: '2026-03-03', missiles: 110, drones: 280 },
+      { date: '2026-03-04', missiles: 50, drones: 230 },
+      { date: '2026-03-05', missiles: 35, drones: 100 },
+      { date: '2026-03-06', missiles: 35, drones: 135 },
+      { date: '2026-03-07', missiles: 30, drones: 165 },
+      { date: '2026-03-08', missiles: 55, drones: 180 },
+      { date: '2026-03-09', missiles: 25, drones: 55 },
+      { date: '2026-03-10', missiles: 45, drones: 45 },
+      { date: '2026-03-11', missiles: 30, drones: 40 },
+      { date: '2026-03-12', missiles: 25, drones: 65 },
+      { date: '2026-03-13', missiles: 30, drones: 110 },
+      { date: '2026-03-14', missiles: 25, drones: 75 },
+      { date: '2026-03-15', missiles: 20, drones: 50 },
+      { date: '2026-03-16', missiles: 35, drones: 95 },
+      { date: '2026-03-17', missiles: 30, drones: 95 },
+      { date: '2026-03-18', missiles: 50, drones: 90 },
+      { date: '2026-03-19', missiles: 25, drones: 45 }
+    ];
+
+    function ema(values, span = 2) {
+      const alpha = 2 / (span + 1);
+      const result = [values[0]];
+      for (let i = 1; i < values.length; i++) {
+        result.push(alpha * values[i] + (1 - alpha) * result[i - 1]);
+      }
+      return result;
+    }
+
+    const missilesEMA = ema(raw.map(d => d.missiles), 2);
+    const dronesEMA = ema(raw.map(d => d.drones), 2);
+
+    const data = raw.map((d, i) => ({
+      ...d,
+      missilesEMA: Math.round(missilesEMA[i]),
+      dronesEMA: Math.round(dronesEMA[i])
+    }));
+
+    const series = {
+      dronesEMA: { label: 'Drones (2-day EMA)', color: '#0B5ED7', visible: true },
+      missilesEMA: { label: 'Missiles (2-day EMA)', color: '#E03C31', visible: true }
+    };
+
+    const svg = document.getElementById('chart');
+    const tooltip = document.getElementById('tooltip');
+    const legend = document.getElementById('legend');
+
+    const W = 1100, H = 620;
+    const margin = { top: 34, right: 130, bottom: 58, left: 68 };
+    const innerW = W - margin.left - margin.right;
+    const innerH = H - margin.top - margin.bottom;
+
+    function fmtDate(dateStr) {
+      const dt = new Date(dateStr + 'T00:00:00');
+      return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function xScale(i) {
+      return margin.left + (i / (data.length - 1)) * innerW;
+    }
+
+    function yScale(v, maxY) {
+      return margin.top + innerH - (v / maxY) * innerH;
+    }
+
+    function linePath(key, maxY) {
+      return data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${xScale(i).toFixed(2)} ${yScale(d[key], maxY).toFixed(2)}`).join(' ');
+    }
+
+    function clearSVG() {
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+    }
+
+    function drawLegend() {
+      legend.innerHTML = '';
+      Object.entries(series).forEach(([key, s]) => {
+        const item = document.createElement('div');
+        item.className = 'legend-item' + (s.visible ? '' : ' off');
+        item.innerHTML = `<span class="swatch" style="background:${s.color}"></span><span>${s.label}</span>`;
+        item.onclick = () => {
+          s.visible = !s.visible;
+          drawLegend();
+          drawChart();
+        };
+        legend.appendChild(item);
+      });
+    }
+
+    function add(el, attrs = {}, parent = svg) {
+      const node = document.createElementNS('http://www.w3.org/2000/svg', el);
+      for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+      parent.appendChild(node);
+      return node;
+    }
+
+    function drawChart() {
+      clearSVG();
+      const visibleKeys = Object.keys(series).filter(k => series[k].visible);
+      const maxY = Math.max(...data.flatMap(d => visibleKeys.map(k => d[k])), 100);
+
+      const plotBg = add('rect', {
+        x: margin.left,
+        y: margin.top,
+        width: innerW,
+        height: innerH,
+        fill: '#fff'
+      });
+
+      const axisGroup = add('g', { class: 'axis' });
+      add('line', { x1: margin.left, y1: margin.top + innerH, x2: margin.left + innerW, y2: margin.top + innerH }, axisGroup);
+      add('line', { x1: margin.left, y1: margin.top, x2: margin.left, y2: margin.top + innerH }, axisGroup);
+
+      const yTicks = 5;
+      for (let i = 0; i <= yTicks; i++) {
+        const v = (maxY / yTicks) * i;
+        const y = yScale(v, maxY);
+        add('line', { x1: margin.left - 6, y1: y, x2: margin.left, y2: y, stroke: '#C9D2DC' }, axisGroup);
+        const t = add('text', { x: margin.left - 10, y: y + 4, 'text-anchor': 'end' }, axisGroup);
+        t.textContent = Math.round(v);
+      }
+
+      data.forEach((d, i) => {
+        if (i % 2 === 0 || i === data.length - 1) {
+          const x = xScale(i);
+          add('line', { x1: x, y1: margin.top + innerH, x2: x, y2: margin.top + innerH + 6, stroke: '#C9D2DC' }, axisGroup);
+          const t = add('text', { x, y: margin.top + innerH + 24, 'text-anchor': 'middle' }, axisGroup);
+          t.textContent = fmtDate(d.date);
+        }
+      });
+
+      visibleKeys.forEach(key => {
+        add('path', {
+          d: linePath(key, maxY),
+          stroke: series[key].color,
+          class: 'series-line'
+        });
+      });
+
+      visibleKeys.forEach(key => {
+        const s = series[key];
+        const first = data[0];
+        const last = data[data.length - 1];
+        const xFirst = xScale(0), yFirst = yScale(first[key], maxY);
+        const xLast = xScale(data.length - 1), yLast = yScale(last[key], maxY);
+
+        add('circle', { cx: xFirst, cy: yFirst, class: 'endpoint', fill: s.color });
+        add('circle', { cx: xLast, cy: yLast, class: 'endpoint', fill: s.color });
+
+        const startText = add('text', {
+          x: xFirst + 10,
+          y: yFirst - 12,
+          fill: s.color,
+          class: 'start-label'
+        });
+        startText.textContent = Math.round(first[key]);
+
+        const endText = add('text', {
+          x: xLast + 12,
+          y: yLast,
+          fill: s.color,
+          class: 'value-label'
+        });
+        endText.textContent = `${s.label.split(' ')[0]} ${Math.round(last[key])}`;
+      });
+
+      const hoverLine = add('line', {
+        x1: margin.left,
+        y1: margin.top,
+        x2: margin.left,
+        y2: margin.top + innerH,
+        class: 'hover-line'
+      });
+
+      const hit = add('rect', {
+        x: margin.left,
+        y: margin.top,
+        width: innerW,
+        height: innerH,
+        class: 'hit-area'
+      });
+
+      hit.addEventListener('mousemove', e => {
+        const pt = svg.createSVGPoint();
+        pt.x = e.clientX; pt.y = e.clientY;
+        const cursor = pt.matrixTransform(svg.getScreenCTM().inverse());
+        let index = Math.round(((cursor.x - margin.left) / innerW) * (data.length - 1));
+        index = Math.max(0, Math.min(data.length - 1, index));
+        const d = data[index];
+        const x = xScale(index);
+        hoverLine.setAttribute('x1', x);
+        hoverLine.setAttribute('x2', x);
+        hoverLine.style.opacity = 1;
+
+        const rows = [];
+        if (series.dronesEMA.visible) rows.push(`<div class="row"><span style="color:${series.dronesEMA.color}">Drones EMA</span><span>${Math.round(d.dronesEMA)}</span></div>`);
+        if (series.missilesEMA.visible) rows.push(`<div class="row"><span style="color:${series.missilesEMA.color}">Missiles EMA</span><span>${Math.round(d.missilesEMA)}</span></div>`);
+
+        tooltip.innerHTML = `<div class="date">${fmtDate(d.date)}</div>${rows.join('')}`;
+        tooltip.style.opacity = 1;
+
+        const rect = svg.getBoundingClientRect();
+        const left = ((x / W) * rect.width);
+        const top = ((Math.min(yScale(Math.max(d.dronesEMA, d.missilesEMA), maxY), yScale(Math.min(d.dronesEMA, d.missilesEMA), maxY)) / H) * rect.height);
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${top + 14}px`;
+      });
+
+      hit.addEventListener('mouseleave', () => {
+        hoverLine.style.opacity = 0;
+        tooltip.style.opacity = 0;
+      });
+    }
+
+    drawLegend();
+    drawChart();
+    window.addEventListener('resize', drawChart);
+  </script>
+</body>
+</html>
